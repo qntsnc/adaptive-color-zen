@@ -1,0 +1,110 @@
+{
+  "name": "Adaptive Tab Bar Color",
+  "description": "Автоматически изменяет цвет панели вкладок, адаптируясь к основному цвету текущего веб-сайта, аналогично функции в Safari",
+  "author": "adaptivetabbarcolorzen",
+  "version": "1.0.0",
+  "image": "preview.png",
+  "preferences": [
+    {
+      "type": "text",
+      "label": "**Adaptive Tab Bar Color**",
+      "size": "18px",
+      "margin": "0 0 10px 0"
+    },
+    {
+      "type": "text",
+      "label": "Автоматически адаптирует цвет панели вкладок к доминирующему цвету активного веб-сайта. Работает аналогично Safari на macOS.",
+      "size": "14px",
+      "margin": "0 0 15px 0"
+    },
+    {
+      "type": "separator",
+      "label": "Основные настройки"
+    },
+    {
+      "type": "checkbox",
+      "property": "adaptive.tabbar.enabled",
+      "label": "Включить адаптивную панель вкладок",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "property": "adaptive.tabbar.smooth-transition",
+      "label": "Плавные переходы между цветами",
+      "default": true
+    },
+    {
+      "type": "range",
+      "property": "adaptive.tabbar.transition-duration",
+      "label": "Длительность перехода (мс)",
+      "min": 100,
+      "max": 1000,
+      "step": 50,
+      "default": 300,
+      "conditions": [
+        {"if": {"property": "adaptive.tabbar.smooth-transition", "value": true}}
+      ]
+    },
+    {
+      "type": "separator",
+      "label": "Настройки цвета"
+    },
+    {
+      "type": "range",
+      "property": "adaptive.tabbar.saturation",
+      "label": "Насыщенность цвета (%)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 70
+    },
+    {
+      "type": "range",
+      "property": "adaptive.tabbar.brightness",
+      "label": "Яркость цвета (%)",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "type": "checkbox",
+      "property": "adaptive.tabbar.dark-mode-only",
+      "label": "Применять только в тёмной теме",
+      "default": false
+    },
+    {
+      "type": "separator",
+      "label": "Дополнительные элементы"
+    },
+    {
+      "type": "checkbox",
+      "property": "adaptive.tabbar.apply-to-sidebar",
+      "label": "Применять к боковой панели",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "property": "adaptive.tabbar.apply-to-urlbar",
+      "label": "Применять к адресной строке",
+      "default": false
+    },
+    {
+      "type": "separator",
+      "label": "Исключения"
+    },
+    {
+      "type": "string",
+      "property": "adaptive.tabbar.excluded-domains",
+      "label": "Исключённые домены (через запятую)",
+      "placeholder": "example.com, google.com",
+      "default": ""
+    },
+    {
+      "type": "text",
+      "label": "*Перезапустите браузер после изменения настроек для полного применения изменений*",
+      "size": "12px",
+      "margin": "15px 0 0 0"
+    }
+  ]
+} 
