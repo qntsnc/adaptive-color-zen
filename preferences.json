@@ -1,0 +1,91 @@
+{
+  "name": "Adaptive Tab Bar Color",
+  "description": "Dynamically changes tab bar color based on active tab content, similar to Firefox's adaptive tab bar color extension",
+  "version": "1.0.0",
+  "author": "zen-mod-dev",
+  "license": "MIT",
+  "repository": "https://github.com/zen-mod-dev/adaptive-tab-bar-color-zen",
+  "keywords": ["theme", "tab", "color", "adaptive", "ui"],
+  "compatibility": {
+    "zen_version": ">=1.0.0",
+    "firefox_version": ">=120.0"
+  },
+  "settings": {
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "title": "Enable Adaptive Tab Bar Color",
+      "description": "Enable or disable the adaptive tab bar color feature"
+    },
+    "extractionMethod": {
+      "type": "select",
+      "default": "auto",
+      "title": "Color Extraction Method",
+      "description": "Method used to extract colors from pages",
+      "options": [
+        {"value": "auto", "label": "Auto (Favicon + Theme Color)"},
+        {"value": "favicon", "label": "Favicon Only"},
+        {"value": "theme", "label": "Theme Color Only"},
+        {"value": "content", "label": "Page Content"}
+      ]
+    },
+    "transitionDuration": {
+      "type": "number",
+      "default": 300,
+      "min": 0,
+      "max": 2000,
+      "step": 50,
+      "title": "Transition Duration (ms)",
+      "description": "Duration of color transition animations in milliseconds"
+    },
+    "colorIntensity": {
+      "type": "range",
+      "default": 0.9,
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "title": "Color Intensity",
+      "description": "Intensity of the adaptive colors (opacity)"
+    },
+    "applyToElements": {
+      "type": "multiselect",
+      "default": ["tabbar", "navbar", "urlbar"],
+      "title": "Apply Colors To",
+      "description": "Select which browser elements should use adaptive colors",
+      "options": [
+        {"value": "tabbar", "label": "Tab Bar"},
+        {"value": "navbar", "label": "Navigation Bar"},
+        {"value": "urlbar", "label": "URL Bar"},
+        {"value": "sidebar", "label": "Sidebar"},
+        {"value": "buttons", "label": "Toolbar Buttons"}
+      ]
+    },
+    "cacheEnabled": {
+      "type": "boolean",
+      "default": true,
+      "title": "Enable Color Caching",
+      "description": "Cache extracted colors to improve performance"
+    },
+    "debugMode": {
+      "type": "boolean",
+      "default": false,
+      "title": "Debug Mode",
+      "description": "Enable debug logging in browser console"
+    }
+  },
+  "files": {
+    "chrome.css": {
+      "type": "css",
+      "description": "Main CSS file for adaptive tab bar styling"
+    },
+    "center-url.uc.js": {
+      "type": "userchrome",
+      "description": "JavaScript logic for color extraction and application"
+    }
+  },
+  "installation": {
+    "automatic": true,
+    "requires_restart": false,
+    "conflicts": ["other-tab-color-mods"]
+  }
+} 

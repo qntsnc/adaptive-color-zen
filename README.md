@@ -1,114 +1,131 @@
-# Adaptive Tab Bar Color для Zen Browser
+# Adaptive Tab Bar Color for Zen Browser
 
-🎨 **Автоматически адаптирует цвет панели вкладок к цветовой схеме активного веб-сайта**
+Dynamically changes the tab bar color based on the active tab's content, providing a more immersive browsing experience. This mod replicates the functionality of the popular Firefox "Adaptive Tab Bar Color" extension for Zen Browser.
 
-Этот мод для Zen Browser реализует функционал, аналогичный популярному расширению "Adaptive Tab Bar Color" для Firefox, автоматически изменяя цвет панели вкладок в соответствии с доминирующим цветом текущего веб-сайта, как это делается в Safari на macOS.
+## Features
 
-![Preview](preview.png)
+- 🎨 **Automatic Color Extraction**: Extracts colors from favicons, theme-color meta tags, and page content
+- 🌈 **Smooth Transitions**: Beautiful color transitions with configurable duration
+- ⚡ **Performance Optimized**: Color caching and debounced updates for optimal performance
+- 🔧 **Highly Configurable**: Multiple extraction methods and customization options
+- 🎯 **Selective Application**: Choose which UI elements receive adaptive colors
 
-## ✨ Возможности
+## How It Works
 
-- 🎯 **Автоматическое извлечение цветов** - получает цвета из meta-тегов `theme-color` и favicon сайтов
-- 🎨 **Адаптивные цвета** - автоматически подбирает контрастные цвета для текста и элементов интерфейса  
-- ⚡ **Плавные переходы** - красивые анимированные переходы между цветами
-- 🎛️ **Гибкие настройки** - настройка яркости, насыщенности, скорости переходов
-- 🌓 **Поддержка тём** - опция применения только в тёмной теме
-- 📱 **Расширенное применение** - возможность применения к боковой панели и адресной строке
-- 🚫 **Исключения доменов** - возможность исключить определённые сайты
-- 💾 **Кэширование** - запоминает цвета для часто посещаемых сайтов
+The mod analyzes the currently active tab and extracts dominant colors from:
+1. **Favicon**: Primary method for most websites
+2. **Theme Color Meta Tag**: For modern web apps with theme-color support
+3. **Page Content**: Fallback method using computed styles
 
-## 🚀 Установка
+The extracted colors are then applied to various browser elements including:
+- Tab bar background
+- Navigation bar
+- URL bar
+- Toolbar buttons
+- Sidebar (optional)
 
-### Через Sine (рекомендуется)
+## Installation
 
-1. Установите [Sine](https://github.com/CosmoCreeper/Sine) для Zen Browser
-2. Откройте Sine и введите: `adaptivetabbarcolorzen/adaptivetabbarcolorzen`
-3. Нажмите "Установить"
+### Via Sine (Recommended)
 
-### Ручная установка
-
-1. Скачайте репозиторий
-2. Скопируйте содержимое `chrome.css` в ваш файл `userChrome.css`
-3. Добавьте `script.js` в папку `scripts` вашего профиля Zen
-4. Перезапустите Zen Browser
-
-## ⚙️ Настройки
-
-Мод предоставляет широкий спектр настроек через интерфейс Zen:
-
-### Основные настройки
-- **Включить адаптивную панель вкладок** - главный переключатель функции
-- **Плавные переходы** - включает анимированные переходы между цветами
-- **Длительность перехода** - скорость смены цветов (100-1000 мс)
-
-### Настройки цвета
-- **Насыщенность цвета** - интенсивность применяемого цвета (0-100%)
-- **Яркость цвета** - светлота цвета панели вкладок (10-90%)
-- **Применять только в тёмной теме** - ограничивает работу тёмной темой системы
-
-### Дополнительные элементы
-- **Применять к боковой панели** - распространяет цвет на боковую панель
-- **Применять к адресной строке** - окрашивает также адресную строку
-
-### Исключения
-- **Исключённые домены** - список доменов (через запятую), для которых не применяется адаптивная окраска
-
-## 🎯 Как это работает
-
-1. **Извлечение цвета**: При переключении вкладок мод сначала ищет meta-тег `theme-color` на странице
-2. **Fallback к favicon**: Если theme-color не найден, анализируется favicon для извлечения доминирующего цвета
-3. **Обработка цвета**: Найденный цвет корректируется согласно настройкам яркости и насыщенности
-4. **Применение**: Цвет применяется к панели вкладок с автоматическим подбором контрастных цветов для текста
-5. **Кэширование**: Цвет сохраняется для быстрого применения при повторных посещениях
-
-## 🔧 Совместимость
-
-- ✅ **Zen Browser**: Версии 1.0.0 и выше
-- ✅ **Sine**: Полная поддержка всех функций Sine
-- ✅ **Themes**: Совместим с большинством тём Zen Browser
-- ✅ **Extensions**: Работает совместно с другими модами (кроме конфликтующих с цветами)
-
-### Известные ограничения
-- Не работает с сайтами, блокирующими доступ к favicon из-за CORS
-- Может конфликтовать с другими модами, изменяющими цвета интерфейса
-- На некоторых сайтах без theme-color и с простым favicon цвет может быть не очень подходящим
-
-## 🛠️ Разработка
-
-### Структура проекта
-```
-adaptivetabbarcolorzen/
-├── theme.json          # Метаданные мода и настройки
-├── chrome.css          # CSS стили для интерфейса
-├── script.js           # Основная логика извлечения и применения цветов
-├── preview.png         # Превью мода
-└── README.md           # Документация
+```bash
+sine install adaptive-tab-bar-color-zen
 ```
 
-### Локальная разработка
-1. Клонируйте репозиторий
-2. Установите через Sine в режиме разработки
-3. Изменения в CSS применяются сразу, для JS нужен перезапуск браузера
+### Manual Installation
 
-## 🐛 Сообщить об ошибке
+1. Download or clone this repository
+2. Copy the files to your Zen Browser chrome folder:
+   - `chrome.css` → `chrome/`
+   - `center-url.uc.js` → `chrome/`
+   - `preferences.json` → `chrome/`
 
-Если вы обнаружили ошибку или у вас есть предложения по улучшению:
+## Configuration
 
-1. Откройте [issue](https://github.com/adaptivetabbarcolorzen/adaptivetabbarcolorzen/issues)
-2. Опишите проблему подробно
-3. Укажите версию Zen Browser и операционную систему
-4. По возможности приложите скриншоты
+The mod includes several configurable options in `preferences.json`:
 
-## 📄 Лицензия
+### Basic Settings
 
-MIT License - подробности в файле [LICENSE](LICENSE)
+- **Enable/Disable**: Toggle the mod on/off
+- **Color Intensity**: Adjust the opacity of adaptive colors (0.1 - 1.0)
+- **Transition Duration**: Set animation speed (0 - 2000ms)
 
-## 🙏 Благодарности
+### Advanced Settings
 
-- Команде [Zen Browser](https://github.com/zen-browser) за отличный браузер
-- Автору оригинального [Adaptive Tab Bar Colour](https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour) для Firefox
-- Сообществу разработчиков модов Zen Browser
+- **Extraction Method**: Choose how colors are extracted
+  - `auto`: Favicon + theme color (recommended)
+  - `favicon`: Favicon only
+  - `theme`: Theme color only
+  - `content`: Page content analysis
+
+- **Apply To Elements**: Select which UI elements use adaptive colors
+  - Tab Bar
+  - Navigation Bar
+  - URL Bar
+  - Sidebar
+  - Toolbar Buttons
+
+- **Performance Options**:
+  - Color caching for faster repeated visits
+  - Debug mode for troubleshooting
+
+## Browser Compatibility
+
+- **Zen Browser**: v1.0.0+
+- **Firefox Base**: v120.0+
+
+## Development
+
+### File Structure
+
+```
+adaptive-tab-bar-color-zen/
+├── chrome.css              # Main CSS styling
+├── center-url.uc.js        # Color extraction logic
+├── preferences.json        # Configuration options
+├── README.md              # Documentation
+└── LICENSE                # MIT License
+```
+
+### Key Components
+
+- **Color Extraction Engine**: Analyzes favicons and page content
+- **CSS Variable System**: Dynamic color application via custom properties
+- **Event Listeners**: Tab change and page load detection
+- **Performance Optimization**: Debouncing and caching mechanisms
+
+### Debugging
+
+Enable debug mode in preferences to see detailed logging:
+
+```javascript
+// In browser console
+window.adaptiveTabBarColor.toggle(); // Toggle on/off
+window.adaptiveTabBarColor.currentColors; // View current colors
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Credits
+
+Inspired by the Firefox "Adaptive Tab Bar Color" extension. Adapted for Zen Browser with enhanced features and performance optimizations.
+
+## Support
+
+- **Issues**: Report bugs via GitHub Issues
+- **Discussions**: Join the Zen Browser community
+- **Updates**: Star the repository for updates
 
 ---
 
-**Сделано с ❤️ для сообщества Zen Browser** 
+**Note**: This mod modifies browser appearance and may conflict with other theme modifications. Disable other tab color mods before installation. 

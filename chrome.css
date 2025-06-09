@@ -1,163 +1,107 @@
-/* =============================================================================
-   Adaptive Tab Bar Color - Zen Browser Mod
-   Автоматически изменяет цвет панели вкладок на основе доминирующего цвета веб-сайта
-   ============================================================================= */
+/* Adaptive Tab Bar Color for Zen Browser */
 
-/* Основные переменные для адаптивного цвета */
+/* Base tab bar styling */
+.titlebar-spacer[type="pre-tabs"],
+.titlebar-spacer[type="post-tabs"] {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Tab bar container */
+#TabsToolbar {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  position: relative;
+}
+
+/* Active tab styling with adaptive colors */
+.tabbrowser-tab[selected="true"] .tab-background {
+  transition: background-color 0.3s ease;
+}
+
+/* Tab content area for color extraction */
+.tab-content {
+  transition: all 0.3s ease;
+}
+
+/* Browser area for color adaptation */
+#browser {
+  transition: background-color 0.3s ease;
+}
+
+/* Toolbar area */
+#nav-bar {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom properties for dynamic color scheme */
 :root {
-  --adaptive-primary-color: #2d2d2d;
-  --adaptive-secondary-color: rgba(45, 45, 45, 0.8);
-  --adaptive-text-color: #ffffff;
-  --adaptive-border-color: rgba(255, 255, 255, 0.1);
-  --adaptive-transition-duration: 300ms;
+  --adaptive-bg-color: transparent;
+  --adaptive-text-color: inherit;
+  --adaptive-border-color: transparent;
+  --adaptive-accent-color: var(--zen-primary-color, #ff6600);
 }
 
-/* Настройки переходов если включены плавные переходы */
-:root[adaptive-smooth-transition="true"] {
-  --adaptive-transition: var(--adaptive-transition-duration) ease-in-out;
+/* Apply adaptive colors */
+#TabsToolbar[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
+  border-bottom-color: var(--adaptive-border-color) !important;
 }
 
-:root[adaptive-smooth-transition="false"] {
-  --adaptive-transition: none;
+#nav-bar[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
+  border-bottom-color: var(--adaptive-border-color) !important;
 }
 
-/* Основная панель вкладок */
-:root[adaptive-tabbar-enabled="true"] #zen-tabbox-wrapper,
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tabbox {
-  background: var(--adaptive-primary-color) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-/* Контейнер вкладок */
-:root[adaptive-tabbar-enabled="true"] #zen-sidebar-splitter,
-:root[adaptive-tabbar-enabled="true"] .zen-sidebar-panels-wrapper {
-  background: var(--adaptive-primary-color) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-/* Активная вкладка */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab[selected="true"] .tab-background {
-  background: var(--adaptive-secondary-color) !important;
-  border-color: var(--adaptive-border-color) !important;
-  transition: background var(--adaptive-transition), border-color var(--adaptive-transition) !important;
-}
-
-/* Неактивные вкладки при наведении */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab:not([selected="true"]):hover .tab-background {
-  background: rgba(var(--adaptive-primary-color), 0.6) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-/* Текст в активной вкладке */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab[selected="true"] .tab-text,
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab[selected="true"] .tab-label {
+/* Tab text color adaptation */
+.tabbrowser-tab[selected="true"][adaptive-color="true"] .tab-text {
   color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
 }
 
-/* Кнопка закрытия вкладки */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab[selected="true"] .tab-close-button {
+/* Icon color adaptation */
+.tabbrowser-tab[selected="true"][adaptive-color="true"] .tab-icon-image {
+  filter: brightness(var(--adaptive-icon-brightness, 1));
+}
+
+/* Smooth transitions for color changes */
+.tabbrowser-tab .tab-background,
+.tabbrowser-tab .tab-text,
+.tabbrowser-tab .tab-icon-image {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Close button adaptation */
+.tabbrowser-tab[selected="true"][adaptive-color="true"] .tab-close-button {
   color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
+  opacity: 0.7;
 }
 
-/* Иконки вкладок */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab[selected="true"] .tab-icon-image {
-  transition: opacity var(--adaptive-transition) !important;
+.tabbrowser-tab[selected="true"][adaptive-color="true"] .tab-close-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Кнопки навигации в боковой панели */
-:root[adaptive-tabbar-enabled="true"] .zen-sidebar-panels-wrapper toolbarbutton {
-  color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
-}
-
-/* Применение к боковой панели если включено */
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-sidebar="true"] .browserSidebarContainer,
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-sidebar="true"] #zen-sidebar-splitter {
-  background: var(--adaptive-primary-color) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-/* Применение к адресной строке если включено */
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-urlbar="true"] #nav-bar,
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-urlbar="true"] #urlbar {
-  background: var(--adaptive-primary-color) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-urlbar="true"] #urlbar-input {
-  color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
-}
-
-/* Кнопки в панели навигации */
-:root[adaptive-tabbar-enabled="true"][adaptive-apply-to-urlbar="true"] #nav-bar toolbarbutton {
-  color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
-}
-
-/* Контекстное меню вкладок */
-:root[adaptive-tabbar-enabled="true"] .tabbrowser-tab-tooltip {
-  background: var(--adaptive-primary-color) !important;
-  color: var(--adaptive-text-color) !important;
+/* URL bar adaptation */
+#urlbar[adaptive-color="true"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
   border-color: var(--adaptive-border-color) !important;
 }
 
-/* Кнопка "Все вкладки" */
-:root[adaptive-tabbar-enabled="true"] #zen-tab-unloader,
-:root[adaptive-tabbar-enabled="true"] #alltabs-button {
+/* Sidebar adaptation */
+#sidebar-box[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
+}
+
+/* Menu button adaptation */
+#PanelUI-menu-button[adaptive-color="true"] {
   color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
 }
 
-/* Индикатор загрузки */
-:root[adaptive-tabbar-enabled="true"] .tab-throbber {
-  transition: opacity var(--adaptive-transition) !important;
-}
-
-/* Кнопка создания новой вкладки */
-:root[adaptive-tabbar-enabled="true"] #zen-new-tab {
+/* Back/forward buttons adaptation */
+#back-button[adaptive-color="true"],
+#forward-button[adaptive-color="true"] {
   color: var(--adaptive-text-color) !important;
-  transition: color var(--adaptive-transition) !important;
 }
 
-/* Состояние при применении только в тёмной теме */
-@media (prefers-color-scheme: light) {
-  :root[adaptive-tabbar-enabled="true"][adaptive-dark-mode-only="true"] #zen-tabbox-wrapper,
-  :root[adaptive-tabbar-enabled="true"][adaptive-dark-mode-only="true"] .tabbrowser-tabbox,
-  :root[adaptive-tabbar-enabled="true"][adaptive-dark-mode-only="true"] #zen-sidebar-splitter,
-  :root[adaptive-tabbar-enabled="true"][adaptive-dark-mode-only="true"] .zen-sidebar-panels-wrapper {
-    background: var(--zen-primary-color, #f9f9fb) !important;
-  }
-}
-
-/* Дополнительные стили для улучшения совместимости с темами Zen */
-:root[adaptive-tabbar-enabled="true"] .zen-sidebar-web-panel {
-  background: var(--adaptive-primary-color) !important;
-  transition: background var(--adaptive-transition) !important;
-}
-
-/* Workspace индикаторы */
-:root[adaptive-tabbar-enabled="true"] .zen-workspace-button {
-  background: var(--adaptive-secondary-color) !important;
+/* Refresh button adaptation */
+#reload-button[adaptive-color="true"] {
   color: var(--adaptive-text-color) !important;
-  transition: background var(--adaptive-transition), color var(--adaptive-transition) !important;
-}
-
-/* Кнопки управления окном (закрыть, свернуть, развернуть) */
-:root[adaptive-tabbar-enabled="true"] .titlebar-buttonbox toolbarbutton {
-  transition: opacity var(--adaptive-transition) !important;
-}
-
-/* Анимация при изменении цвета */
-:root[adaptive-tabbar-enabled="true"] * {
-  transition-property: background-color, background, color, border-color;
-  transition-timing-function: ease-in-out;
-}
-
-/* Принудительное применение цветов для некоторых элементов */
-:root[adaptive-tabbar-enabled="true"] #TabsToolbar,
-:root[adaptive-tabbar-enabled="true"] #zen-tabbox-wrapper {
-  background-color: var(--adaptive-primary-color) !important;
 } 
