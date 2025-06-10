@@ -71,6 +71,64 @@
       "default": false,
       "title": "Debug Mode",
       "description": "Enable debug logging in browser console"
+    },
+    "adaptive-tab-color": {
+      "version": "1.2.0",
+      "enabled": true,
+      "settings": {
+        "extraction_method": "header_fallback_background",
+        "update_interval": 5000,
+        "color_intensity": 0.8,
+        "text_contrast": "auto",
+        "quick_test_enabled": true,
+        "quick_test_duration": 2000,
+        "debug_logging": true,
+        "periodic_updates": true,
+        "header_selectors": [
+          "header",
+          "nav",
+          ".navbar",
+          ".header",
+          ".top-bar",
+          ".site-header",
+          ".page-header",
+          ".masthead",
+          ".banner",
+          "[role=\"banner\"]",
+          ".hero",
+          ".hero-section"
+        ],
+        "fallback_selectors": [
+          "body",
+          "html",
+          "main",
+          "#main",
+          ".main",
+          ".container",
+          ".wrapper",
+          ".page"
+        ],
+        "min_element_size": 100,
+        "max_header_distance": 200
+      },
+      "targets": {
+        "tab_bar": true,
+        "navigation_bar": true,
+        "sidebar": true,
+        "url_bar": true,
+        "menu_buttons": true
+      },
+      "color_rules": {
+        "brightness_threshold": 128,
+        "min_saturation": 0.1,
+        "max_saturation": 0.9
+      },
+      "compatibility": {
+        "zen_browser": true,
+        "firefox": true,
+        "compact_mode": true,
+        "vertical_tabs": true
+      }
     }
   },
   "files": {

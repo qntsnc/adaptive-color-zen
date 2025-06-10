@@ -47,9 +47,7 @@
   --adaptive-accent-color: var(--zen-primary-color, #ff6600);
 }
 
-/* Removed test colors - CSS is working */
-
-/* Apply adaptive colors */
+/* Apply adaptive colors when enabled */
 #TabsToolbar[adaptive-color="true"],
 .zen-tabs-container[adaptive-color="true"] {
   background-color: var(--adaptive-bg-color) !important;
@@ -62,9 +60,11 @@
   border-bottom-color: var(--adaptive-border-color) !important;
 }
 
-/* Zen-specific sidebar */
-.zen-sidebar[adaptive-color="true"] {
+/* Zen-specific sidebar - remove any default colors */
+.zen-sidebar[adaptive-color="true"],
+#sidebar-box[adaptive-color="true"] {
   background-color: var(--adaptive-bg-color) !important;
+  border-color: var(--adaptive-border-color) !important;
 }
 
 /* Tab text color adaptation */
@@ -99,11 +99,6 @@
 #urlbar[adaptive-color="true"] {
   background-color: rgba(255, 255, 255, 0.1) !important;
   border-color: var(--adaptive-border-color) !important;
-}
-
-/* Sidebar adaptation */
-#sidebar-box[adaptive-color="true"] {
-  background-color: var(--adaptive-bg-color) !important;
 }
 
 /* Menu button adaptation */
@@ -143,6 +138,15 @@
 #TabsToolbar[adaptive-color="true"],
 .zen-tabs-container[adaptive-color="true"] {
   will-change: background-color;
+}
+
+/* Ensure no default colors interfere */
+#TabsToolbar[adaptive-color="true"] {
+  background-image: none !important;
+}
+
+.zen-sidebar[adaptive-color="true"] {
+  background-image: none !important;
 }
 
 /* Accessibility improvements */
