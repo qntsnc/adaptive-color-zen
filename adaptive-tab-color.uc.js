@@ -54,8 +54,11 @@
                 this.extractAndApplyColors();
             }, 2000);
             
-            // Force initial color for testing
-            this.testColors();
+            // Quick test to confirm JS works, then start real work
+            setTimeout(() => {
+                console.log('[Adaptive Tab Color] Quick test - making tab bar red for 2 seconds');
+                this.quickTest();
+            }, 500);
             
             console.log('[Adaptive Tab Color] Setup completed');
         }
@@ -206,118 +209,138 @@
             });
         }
 
-                testColors() {
-            console.log('[Adaptive Tab Color] Testing color application...');
-            
+                quickTest() {
             try {
-                // Force red background directly on DOM elements to test
-                const root = document.documentElement;
+                console.log('[Adaptive Tab Color] Quick test: applying red to tab bar...');
                 
-                console.log('[Adaptive Tab Color] Setting test CSS variables...');
-                root.style.setProperty('--adaptive-bg-color', 'red');
-                root.style.setProperty('--adaptive-text-color', 'white');
-                
-                // Find and modify toolbar elements directly
-                const elements = [
-                    '#TabsToolbar',
-                    '#navigator-toolbox', 
-                    '#nav-bar',
-                    '.titlebar'
-                ];
-                
-                elements.forEach(selector => {
-                    const el = document.querySelector(selector);
-                    if (el) {
-                        console.log(`[Adaptive Tab Color] Found and coloring: ${selector}`);
-                        el.style.backgroundColor = 'red !important';
-                        el.setAttribute('adaptive-color', 'true');
-                    } else {
-                        console.log(`[Adaptive Tab Color] Element not found: ${selector}`);
-                    }
-                });
-                
-                // Revert after 5 seconds
-                setTimeout(() => {
-                    console.log('[Adaptive Tab Color] Reverting test colors...');
-                    elements.forEach(selector => {
-                        const el = document.querySelector(selector);
-                        if (el) {
-                            el.style.backgroundColor = '';
-                            el.removeAttribute('adaptive-color');
-                        }
-                    });
-                    this.clearColors();
-                }, 5000);
-                
+                // Find tab bar and make it red briefly
+                const tabBar = document.querySelector('#TabsToolbar') || document.querySelector('#navigator-toolbox');
+                if (tabBar) {
+                    tabBar.style.backgroundColor = 'red';
+                    console.log('[Adaptive Tab Color] Tab bar turned red');
+                    
+                    // Revert after 2 seconds and start real work
+                    setTimeout(() => {
+                        tabBar.style.backgroundColor = '';
+                        console.log('[Adaptive Tab Color] Test complete, starting real color extraction...');
+                        this.extractAndApplyColors();
+                    }, 2000);
+                } else {
+                    console.log('[Adaptive Tab Color] Tab bar not found, starting extraction anyway...');
+                    this.extractAndApplyColors();
+                }
             } catch (error) {
-                console.error('[Adaptive Tab Color] Error in testColors:', error);
+                console.error('[Adaptive Tab Color] Quick test failed:', error);
             }
         }
 
         async extractColorsFromContent(browser) {
             return new Promise((resolve) => {
-                console.log('[Adaptive Tab Color] Extracting colors (simplified)...');
+                console.log('[Adaptive Tab Color] Extracting colors from page header...');
                 
                 try {
-                    // Try direct DOM access without messageManager
-                    const doc = browser.contentDocument;
-                    if (!doc) {
-                        console.log('[Adaptive Tab Color] No content document available');
-                        resolve(null);
-                        return;
-                    }
-                    
-                    console.log('[Adaptive Tab Color] Searching for header elements...');
-                    
-                    // Look for header elements
-                    const selectors = ['header', 'nav', '.header', '.navbar', '.top-bar', '.topbar'];
-                    let foundColor = null;
-                    
-                    for (const selector of selectors) {
-                        const elements = doc.querySelectorAll(selector);
-                        console.log(`[Adaptive Tab Color] Found ${elements.length} elements for selector: ${selector}`);
-                        
-                        for (const el of elements) {
-                            const rect = el.getBoundingClientRect();
-                            if (rect.width > 200 && rect.height > 20) {
-                                const style = doc.defaultView.getComputedStyle(el);
-                                const bg = style.backgroundColor;
+                    const script = `
+                        (function() {
+                            try {
+                                console.log('Content script: Looking for header colors on', location.href);
                                 
-                                if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
-                                    console.log(`[Adaptive Tab Color] Found header color: ${bg} from ${selector}`);
-                                    foundColor = bg;
-                                    break;
+                                // Look for header elements with background colors
+                                const selectors = [
+                                    'header', 'nav', '.header', '.navbar', '.top-bar', '.topbar',
+                                    '.site-header', '.main-header', '.page-header'
+                                ];
+                                
+                                for (const selector of selectors) {
+                                    const elements = document.querySelectorAll(selector);
+                                    for (const el of elements) {
+                                        const rect = el.getBoundingClientRect();
+                                        if (rect.top <= 100 && rect.width > 300 && rect.height > 30) {
+                                            const style = getComputedStyle(el);
+                                            const bg = style.backgroundColor;
+                                            
+                                            if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+                                                console.log('Found header color:', bg, 'from', selector);
+                                                return { headerColor: bg };
+                                            }
+                                        }
+                                    }
                                 }
+                                
+                                // Fallback: look for largest element in top area
+                                const allElements = Array.from(document.querySelectorAll('*'));
+                                const topElements = allElements.filter(el => {
+                                    const rect = el.getBoundingClientRect();
+                                    return rect.top >= 0 && rect.top <= 80 && 
+                                           rect.width >= window.innerWidth * 0.6 && 
+                                           rect.height >= 40;
+                                }).sort((a, b) => {
+                                    const aArea = a.getBoundingClientRect().width * a.getBoundingClientRect().height;
+                                    const bArea = b.getBoundingClientRect().width * b.getBoundingClientRect().height;
+                                    return bArea - aArea;
+                                });
+                                
+                                for (const el of topElements) {
+                                    const style = getComputedStyle(el);
+                                    const bg = style.backgroundColor;
+                                    if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+                                        console.log('Found top element color:', bg, 'from', el.tagName);
+                                        return { headerColor: bg };
+                                    }
+                                }
+                                
+                                console.log('No header color found');
+                                return null;
+                            } catch (error) {
+                                console.error('Content script error:', error);
+                                return null;
+                            }
+                        })();
+                    `;
+                    
+                    browser.messageManager.loadFrameScript(`data:application/javascript,
+                        const result = ${script}
+                        sendAsyncMessage('header-color-result', result);
+                    `, false);
+                    
+                    const handleMessage = (message) => {
+                        browser.messageManager.removeMessageListener('header-color-result', handleMessage);
+                        const data = message.data;
+                        
+                        if (data && data.headerColor) {
+                            console.log('[Adaptive Tab Color] Received header color:', data.headerColor);
+                            
+                            const colorMatch = data.headerColor.match(/rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/);
+                            if (colorMatch) {
+                                const r = parseInt(colorMatch[1]);
+                                const g = parseInt(colorMatch[2]);
+                                const b = parseInt(colorMatch[3]);
+                                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                                const textColor = brightness > 128 ? '#000000' : '#ffffff';
+                                
+                                resolve({
+                                    background: `rgba(${r}, ${g}, ${b}, 0.8)`,
+                                    text: textColor,
+                                    border: `rgba(${r}, ${g}, ${b}, 0.3)`,
+                                    accent: `rgb(${r}, ${g}, ${b})`
+                                });
+                                return;
                             }
                         }
-                        if (foundColor) break;
-                    }
+                        
+                        console.log('[Adaptive Tab Color] No valid header color found');
+                        resolve(null);
+                    };
                     
-                    if (foundColor) {
-                        // Parse RGB values
-                        const match = foundColor.match(/rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/);
-                        if (match) {
-                            const r = parseInt(match[1]);
-                            const g = parseInt(match[2]);
-                            const b = parseInt(match[3]);
-                            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-                            const textColor = brightness > 128 ? '#000000' : '#ffffff';
-                            
-                            resolve({
-                                background: `rgba(${r}, ${g}, ${b}, 0.9)`,
-                                text: textColor,
-                                border: `rgba(${r}, ${g}, ${b}, 0.3)`,
-                                accent: `rgb(${r}, ${g}, ${b})`
-                            });
-                            return;
-                        }
-                    }
+                    browser.messageManager.addMessageListener('header-color-result', handleMessage);
                     
-                    console.log('[Adaptive Tab Color] No header color found');
-                    resolve(null);
+                    setTimeout(() => {
+                        browser.messageManager.removeMessageListener('header-color-result', handleMessage);
+                        console.log('[Adaptive Tab Color] Header color extraction timeout');
+                        resolve(null);
+                    }, 3000);
                     
                 } catch (error) {
-                    console.error('[Adaptive Tab Color] Error in direct DOM access:', error);
+                    console.error('[Adaptive Tab Color] Error in color extraction:', error);
                     resolve(null);
                 }
             });
