@@ -34,16 +34,24 @@
         }
 
         setup() {
+            console.log('[Adaptive Tab Color] Starting setup...');
+            
             // Setup tab change listeners
             this.setupTabListeners();
             
-            // Setup page load listeners
+            // Setup page load listeners  
             this.setupPageLoadListeners();
             
-            // Initial color extraction
-            setTimeout(() => this.extractAndApplyColors(), 1000);
+            // Initial color extraction with force
+            setTimeout(() => {
+                console.log('[Adaptive Tab Color] Initial extraction starting...');
+                this.extractAndApplyColors();
+            }, 2000);
             
-            console.log('[Adaptive Tab Bar Color] Initialized successfully');
+            // Force initial color for testing
+            this.testColors();
+            
+            console.log('[Adaptive Tab Color] Setup completed');
         }
 
         setupTabListeners() {
@@ -88,24 +96,35 @@
         }
 
         async extractAndApplyColors() {
-            if (!this.isEnabled) return;
+            if (!this.isEnabled) {
+                console.log('[Adaptive Tab Color] Disabled, skipping');
+                return;
+            }
 
             try {
                 const activeTab = gBrowser.selectedTab;
                 const browser = gBrowser.selectedBrowser;
                 
-                if (!activeTab || !browser) return;
+                if (!activeTab || !browser) {
+                    console.log('[Adaptive Tab Color] No active tab or browser');
+                    return;
+                }
 
                 const url = browser.currentURI.spec;
+                console.log('[Adaptive Tab Color] Processing URL:', url);
                 
                 // Check cache first
                 if (this.colorCache.has(url)) {
+                    console.log('[Adaptive Tab Color] Using cached colors for:', url);
                     this.applyColors(this.colorCache.get(url));
                     return;
                 }
 
-                // Extract colors from favicon and page content
+                // Extract colors from page content
+                console.log('[Adaptive Tab Color] Extracting colors from page...');
                 const colors = await this.extractColorsFromPage(browser);
+                
+                console.log('[Adaptive Tab Color] Extracted colors:', colors);
                 
                 // Cache the colors
                 this.colorCache.set(url, colors);
@@ -114,7 +133,7 @@
                 this.applyColors(colors);
                 
             } catch (error) {
-                console.warn('[Adaptive Tab Bar Color] Error extracting colors:', error);
+                console.error('[Adaptive Tab Color] Error extracting colors:', error);
             }
         }
 
@@ -129,26 +148,20 @@
                 };
 
                 try {
-                    // Try to extract from favicon
                     const tab = gBrowser.getTabForBrowser(browser);
-                    const favicon = tab.getAttribute('image');
+                    const url = browser.currentURI.spec;
                     
-                    if (favicon && favicon !== 'chrome://mozapps/skin/places/defaultFavicon.svg') {
-                        this.extractColorsFromImage(favicon).then(faviconColors => {
-                            if (faviconColors) {
-                                colors = { ...colors, ...faviconColors };
-                            }
+                    // ONLY try to extract from page header - no fallbacks to favicon
+                    this.extractColorsFromContent(browser).then(contentColors => {
+                        if (contentColors) {
+                            resolve({ ...colors, ...contentColors });
+                        } else {
+                            // If no header color found, use default
                             resolve(colors);
-                        }).catch(() => resolve(colors));
-                    } else {
-                        // Try to extract from page content
-                        this.extractColorsFromContent(browser).then(contentColors => {
-                            if (contentColors) {
-                                colors = { ...colors, ...contentColors };
-                            }
-                            resolve(colors);
-                        }).catch(() => resolve(colors));
-                    }
+                        }
+                    }).catch(() => {
+                        resolve(colors);
+                    });
                 } catch (error) {
                     resolve(colors);
                 }
@@ -187,68 +200,90 @@
             });
         }
 
+                testColors() {
+            console.log('[Adaptive Tab Color] Testing color application...');
+            
+            // Apply test color to see if CSS works
+            const testColors = {
+                background: 'rgba(255, 100, 100, 0.8)',
+                text: '#ffffff',
+                border: 'rgba(255, 100, 100, 0.5)',
+                accent: 'rgb(255, 100, 100)'
+            };
+            
+            this.applyColors(testColors);
+            
+            // Revert after 3 seconds
+            setTimeout(() => {
+                console.log('[Adaptive Tab Color] Reverting test colors...');
+                this.clearColors();
+            }, 3000);
+        }
+
         async extractColorsFromContent(browser) {
             return new Promise((resolve) => {
+                console.log('[Adaptive Tab Color] Extracting colors (simplified)...');
+                
                 try {
-                    // Use a script to extract theme colors from the page
-                    const script = `
-                        (() => {
-                            try {
-                                // Look for theme-color meta tag
-                                const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-                                if (themeColorMeta) {
-                                    return { themeColor: themeColorMeta.content };
-                                }
-                                
-                                // Look for dominant colors in the page
-                                const body = document.body;
-                                const computedStyle = window.getComputedStyle(body);
-                                return {
-                                    backgroundColor: computedStyle.backgroundColor,
-                                    color: computedStyle.color
-                                };
-                            } catch (error) {
-                                return null;
-                            }
-                        })();
-                    `;
-                    
-                    browser.messageManager.loadFrameScript('data:application/javascript,' + encodeURIComponent(`
-                        try {
-                            const result = ${script};
-                            sendAsyncMessage('adaptive-color-result', result);
-                        } catch (error) {
-                            sendAsyncMessage('adaptive-color-result', null);
-                        }
-                    `), false);
-                    
-                    const handleMessage = (message) => {
-                        browser.messageManager.removeMessageListener('adaptive-color-result', handleMessage);
-                        const data = message.data;
-                        
-                        if (data && data.themeColor) {
-                            resolve({
-                                background: this.adjustColorOpacity(data.themeColor, 0.9),
-                                accent: data.themeColor
-                            });
-                        } else if (data && data.backgroundColor && data.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-                            resolve({
-                                background: this.adjustColorOpacity(data.backgroundColor, 0.9)
-                            });
-                        } else {
-                            resolve(null);
-                        }
-                    };
-                    
-                    browser.messageManager.addMessageListener('adaptive-color-result', handleMessage);
-                    
-                    // Timeout fallback
-                    setTimeout(() => {
-                        browser.messageManager.removeMessageListener('adaptive-color-result', handleMessage);
+                    // Try direct DOM access without messageManager
+                    const doc = browser.contentDocument;
+                    if (!doc) {
+                        console.log('[Adaptive Tab Color] No content document available');
                         resolve(null);
-                    }, 2000);
+                        return;
+                    }
+                    
+                    console.log('[Adaptive Tab Color] Searching for header elements...');
+                    
+                    // Look for header elements
+                    const selectors = ['header', 'nav', '.header', '.navbar', '.top-bar', '.topbar'];
+                    let foundColor = null;
+                    
+                    for (const selector of selectors) {
+                        const elements = doc.querySelectorAll(selector);
+                        console.log(`[Adaptive Tab Color] Found ${elements.length} elements for selector: ${selector}`);
+                        
+                        for (const el of elements) {
+                            const rect = el.getBoundingClientRect();
+                            if (rect.width > 200 && rect.height > 20) {
+                                const style = doc.defaultView.getComputedStyle(el);
+                                const bg = style.backgroundColor;
+                                
+                                if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+                                    console.log(`[Adaptive Tab Color] Found header color: ${bg} from ${selector}`);
+                                    foundColor = bg;
+                                    break;
+                                }
+                            }
+                        }
+                        if (foundColor) break;
+                    }
+                    
+                    if (foundColor) {
+                        // Parse RGB values
+                        const match = foundColor.match(/rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/);
+                        if (match) {
+                            const r = parseInt(match[1]);
+                            const g = parseInt(match[2]);
+                            const b = parseInt(match[3]);
+                            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                            const textColor = brightness > 128 ? '#000000' : '#ffffff';
+                            
+                            resolve({
+                                background: `rgba(${r}, ${g}, ${b}, 0.9)`,
+                                text: textColor,
+                                border: `rgba(${r}, ${g}, ${b}, 0.3)`,
+                                accent: `rgb(${r}, ${g}, ${b})`
+                            });
+                            return;
+                        }
+                    }
+                    
+                    console.log('[Adaptive Tab Color] No header color found');
+                    resolve(null);
                     
                 } catch (error) {
+                    console.error('[Adaptive Tab Color] Error in direct DOM access:', error);
                     resolve(null);
                 }
             });
@@ -311,18 +346,91 @@
             return color;
         }
 
+        getSiteSpecificColors(url) {
+            // Minimal fallback colors only for sites where header extraction consistently fails
+            const siteColorMap = {
+                // Only keep essential fallbacks - most sites should use header extraction
+            };
+
+            // Check if current URL matches any predefined site
+            for (const [domain, colors] of Object.entries(siteColorMap)) {
+                if (url.includes(domain)) {
+                    return colors;
+                }
+            }
+            
+            return null;
+        }
+
+        isColorValid(colors) {
+            // Validate extracted colors
+            if (!colors.background && !colors.accent) {
+                return false;
+            }
+
+            // Check if colors are too saturated (but allow bright colors like white)
+            if (colors.background) {
+                const rgb = this.parseColor(colors.background);
+                if (rgb) {
+                    const saturation = this.calculateSaturation(rgb.r, rgb.g, rgb.b);
+                    
+                    // Only reject colors that are too saturated (neon colors), but allow white/light colors
+                    if (saturation > 0.9) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        parseColor(colorString) {
+            // Parse rgba or rgb color string
+            const rgbaMatch = colorString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+            if (rgbaMatch) {
+                return {
+                    r: parseInt(rgbaMatch[1]),
+                    g: parseInt(rgbaMatch[2]),
+                    b: parseInt(rgbaMatch[3])
+                };
+            }
+            return null;
+        }
+
+        calculateSaturation(r, g, b) {
+            // Calculate color saturation
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const delta = max - min;
+            
+            if (max === 0) return 0;
+            return delta / max;
+        }
+
         applyColors(colors) {
-            if (!colors) return;
+            console.log('[Adaptive Tab Color] Applying colors:', colors);
+            
+            if (!colors) {
+                console.log('[Adaptive Tab Color] No colors to apply');
+                return;
+            }
             
             const root = document.documentElement;
             
-            // Set CSS custom properties
+            // Set CSS custom properties (THIS IS THE BRIDGE BETWEEN JS AND CSS!)
+            console.log('[Adaptive Tab Color] Setting CSS variables...');
             root.style.setProperty('--adaptive-bg-color', colors.background || 'transparent');
             root.style.setProperty('--adaptive-text-color', colors.text || 'inherit');
             root.style.setProperty('--adaptive-border-color', colors.border || 'transparent');
             root.style.setProperty('--adaptive-accent-color', colors.accent || '#ff6600');
             
-            // Apply adaptive attributes
+            // Verify variables were set
+            console.log('[Adaptive Tab Color] CSS Variables set:');
+            console.log('  --adaptive-bg-color:', root.style.getPropertyValue('--adaptive-bg-color'));
+            console.log('  --adaptive-text-color:', root.style.getPropertyValue('--adaptive-text-color'));
+            
+            // Apply adaptive attributes to trigger CSS rules
+            console.log('[Adaptive Tab Color] Applying adaptive attributes...');
             const elements = [
                 document.getElementById('TabsToolbar'),
                 document.getElementById('nav-bar'),
@@ -334,19 +442,28 @@
                 document.getElementById('reload-button')
             ];
             
+            let appliedCount = 0;
             elements.forEach(element => {
                 if (element) {
                     element.setAttribute('adaptive-color', 'true');
+                    appliedCount++;
+                    console.log(`[Adaptive Tab Color] Applied to: ${element.id}`);
+                } else {
+                    console.log(`[Adaptive Tab Color] Element not found in DOM`);
                 }
             });
+            
+            console.log(`[Adaptive Tab Color] Applied adaptive-color attribute to ${appliedCount} elements`);
             
             // Apply to selected tab
             const selectedTab = gBrowser.selectedTab;
             if (selectedTab) {
                 selectedTab.setAttribute('adaptive-color', 'true');
+                console.log('[Adaptive Tab Color] Applied to selected tab');
             }
             
             this.currentColors = colors;
+            console.log('[Adaptive Tab Color] Color application completed');
         }
 
         toggle() {
@@ -386,10 +503,19 @@
         }
     }
 
-    // Initialize the adaptive tab bar color system
-    const adaptiveTabBarColor = new AdaptiveTabBarColor();
+    // Log that script is loading
+    console.log('[Adaptive Tab Color] Script loading...');
     
-    // Make it globally accessible for debugging
-    window.adaptiveTabBarColor = adaptiveTabBarColor;
+    // Initialize the adaptive tab bar color system
+    try {
+        const adaptiveTabBarColor = new AdaptiveTabBarColor();
+        
+        // Make it globally accessible for debugging
+        window.adaptiveTabBarColor = adaptiveTabBarColor;
+        
+        console.log('[Adaptive Tab Color] Script loaded successfully');
+    } catch (error) {
+        console.error('[Adaptive Tab Color] Failed to initialize:', error);
+    }
     
 })(); 

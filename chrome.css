@@ -47,6 +47,11 @@
   --adaptive-accent-color: var(--zen-primary-color, #ff6600);
 }
 
+/* TEST: Force visible colors to debug CSS loading */
+#TabsToolbar {
+  background-color: blue !important; /* Должен быть синий, если CSS загружен */
+}
+
 /* Apply adaptive colors */
 #TabsToolbar[adaptive-color="true"],
 .zen-tabs-container[adaptive-color="true"] {
