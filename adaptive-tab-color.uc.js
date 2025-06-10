@@ -25,11 +25,17 @@
         }
 
         init() {
-            // Wait for browser to be ready
+            console.log('[Adaptive Tab Color] Init called, readyState:', document.readyState);
+            
+            // Force immediate setup
+            this.setup();
+            
+            // Also setup on load as backup
             if (document.readyState !== 'complete') {
-                window.addEventListener('load', () => this.setup());
-            } else {
-                this.setup();
+                window.addEventListener('load', () => {
+                    console.log('[Adaptive Tab Color] Window loaded, setting up again...');
+                    this.setup();
+                });
             }
         }
 
@@ -203,21 +209,49 @@
                 testColors() {
             console.log('[Adaptive Tab Color] Testing color application...');
             
-            // Apply test color to see if CSS works
-            const testColors = {
-                background: 'rgba(255, 100, 100, 0.8)',
-                text: '#ffffff',
-                border: 'rgba(255, 100, 100, 0.5)',
-                accent: 'rgb(255, 100, 100)'
-            };
-            
-            this.applyColors(testColors);
-            
-            // Revert after 3 seconds
-            setTimeout(() => {
-                console.log('[Adaptive Tab Color] Reverting test colors...');
-                this.clearColors();
-            }, 3000);
+            try {
+                // Force red background directly on DOM elements to test
+                const root = document.documentElement;
+                
+                console.log('[Adaptive Tab Color] Setting test CSS variables...');
+                root.style.setProperty('--adaptive-bg-color', 'red');
+                root.style.setProperty('--adaptive-text-color', 'white');
+                
+                // Find and modify toolbar elements directly
+                const elements = [
+                    '#TabsToolbar',
+                    '#navigator-toolbox', 
+                    '#nav-bar',
+                    '.titlebar'
+                ];
+                
+                elements.forEach(selector => {
+                    const el = document.querySelector(selector);
+                    if (el) {
+                        console.log(`[Adaptive Tab Color] Found and coloring: ${selector}`);
+                        el.style.backgroundColor = 'red !important';
+                        el.setAttribute('adaptive-color', 'true');
+                    } else {
+                        console.log(`[Adaptive Tab Color] Element not found: ${selector}`);
+                    }
+                });
+                
+                // Revert after 5 seconds
+                setTimeout(() => {
+                    console.log('[Adaptive Tab Color] Reverting test colors...');
+                    elements.forEach(selector => {
+                        const el = document.querySelector(selector);
+                        if (el) {
+                            el.style.backgroundColor = '';
+                            el.removeAttribute('adaptive-color');
+                        }
+                    });
+                    this.clearColors();
+                }, 5000);
+                
+            } catch (error) {
+                console.error('[Adaptive Tab Color] Error in testColors:', error);
+            }
         }
 
         async extractColorsFromContent(browser) {
@@ -504,18 +538,23 @@
     }
 
     // Log that script is loading
-    console.log('[Adaptive Tab Color] Script loading...');
+    console.log('[Adaptive Tab Color] Script loading... DOM ready:', document.readyState);
     
-    // Initialize the adaptive tab bar color system
-    try {
-        const adaptiveTabBarColor = new AdaptiveTabBarColor();
-        
-        // Make it globally accessible for debugging
-        window.adaptiveTabBarColor = adaptiveTabBarColor;
-        
-        console.log('[Adaptive Tab Color] Script loaded successfully');
-    } catch (error) {
-        console.error('[Adaptive Tab Color] Failed to initialize:', error);
-    }
+    // Wait a bit for DOM to be ready, then initialize
+    setTimeout(() => {
+        try {
+            console.log('[Adaptive Tab Color] Initializing...');
+            const adaptiveTabBarColor = new AdaptiveTabBarColor();
+            
+            // Make it globally accessible for debugging
+            window.adaptiveTabBarColor = adaptiveTabBarColor;
+            
+            console.log('[Adaptive Tab Color] Script initialized successfully');
+            
+            // Test in console: window.adaptiveTabBarColor.testColors()
+        } catch (error) {
+            console.error('[Adaptive Tab Color] Failed to initialize:', error);
+        }
+    }, 1000);
     
 })(); 

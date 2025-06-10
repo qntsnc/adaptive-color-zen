@@ -48,7 +48,10 @@
 }
 
 /* TEST: Force visible colors to debug CSS loading */
-#TabsToolbar {
+#TabsToolbar,
+#navigator-toolbox,
+.toolbar-items,
+.titlebar {
   background-color: blue !important; /* Должен быть синий, если CSS загружен */
 }
 
