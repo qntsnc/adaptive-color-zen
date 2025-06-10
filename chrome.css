@@ -1,4 +1,5 @@
 /* Adaptive Tab Bar Color for Zen Browser */
+/* Dynamically changes tab bar colors based on active tab content */
 
 /* Base tab bar styling */
 .titlebar-spacer[type="pre-tabs"],
@@ -6,10 +7,16 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Tab bar container */
-#TabsToolbar {
+/* Tab bar container - Zen Browser specific */
+#TabsToolbar,
+.zen-tabs-container {
   transition: background-color 0.3s ease, border-color 0.3s ease;
   position: relative;
+}
+
+/* Zen-specific tab container */
+.zen-tab-container {
+  transition: background-color 0.3s ease;
 }
 
 /* Active tab styling with adaptive colors */
@@ -41,14 +48,21 @@
 }
 
 /* Apply adaptive colors */
-#TabsToolbar[adaptive-color="true"] {
+#TabsToolbar[adaptive-color="true"],
+.zen-tabs-container[adaptive-color="true"] {
   background-color: var(--adaptive-bg-color) !important;
   border-bottom-color: var(--adaptive-border-color) !important;
 }
 
-#nav-bar[adaptive-color="true"] {
+#nav-bar[adaptive-color="true"],
+.zen-nav-bar[adaptive-color="true"] {
   background-color: var(--adaptive-bg-color) !important;
   border-bottom-color: var(--adaptive-border-color) !important;
+}
+
+/* Zen-specific sidebar */
+.zen-sidebar[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
 }
 
 /* Tab text color adaptation */
@@ -104,4 +118,43 @@
 /* Refresh button adaptation */
 #reload-button[adaptive-color="true"] {
   color: var(--adaptive-text-color) !important;
+}
+
+/* Additional Zen Browser specific elements */
+.zen-workspaces-button[adaptive-color="true"],
+.zen-split-views-button[adaptive-color="true"] {
+  color: var(--adaptive-text-color) !important;
+}
+
+/* Zen compact mode support */
+.zen-compact-mode #TabsToolbar[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
+}
+
+/* Zen vertical tabs support */
+.zen-vertical-tabs .zen-tabs-container[adaptive-color="true"] {
+  background-color: var(--adaptive-bg-color) !important;
+  border-right-color: var(--adaptive-border-color) !important;
+}
+
+/* Performance optimization - reduce repaints */
+#TabsToolbar[adaptive-color="true"],
+.zen-tabs-container[adaptive-color="true"] {
+  will-change: background-color;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .titlebar-spacer[type="pre-tabs"],
+  .titlebar-spacer[type="post-tabs"],
+  #TabsToolbar,
+  .zen-tabs-container,
+  .zen-tab-container,
+  .tabbrowser-tab .tab-background,
+  .tabbrowser-tab .tab-text,
+  .tabbrowser-tab .tab-icon-image,
+  #browser,
+  #nav-bar {
+    transition: none !important;
+  }
 } 

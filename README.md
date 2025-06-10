@@ -37,7 +37,7 @@ sine install adaptive-tab-bar-color-zen
 1. Download or clone this repository
 2. Copy the files to your Zen Browser chrome folder:
    - `chrome.css` → `chrome/`
-   - `center-url.uc.js` → `chrome/`
+   - `adaptive-tab-color.uc.js` → `chrome/`
    - `preferences.json` → `chrome/`
 
 ## Configuration
@@ -81,7 +81,7 @@ The mod includes several configurable options in `preferences.json`:
 ```
 adaptive-tab-bar-color-zen/
 ├── chrome.css              # Main CSS styling
-├── center-url.uc.js        # Color extraction logic
+├── adaptive-tab-color.uc.js # Color extraction logic
 ├── preferences.json        # Configuration options
 ├── README.md              # Documentation
 └── LICENSE                # MIT License

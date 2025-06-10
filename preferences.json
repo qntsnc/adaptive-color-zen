@@ -78,7 +78,7 @@
       "type": "css",
       "description": "Main CSS file for adaptive tab bar styling"
     },
-    "center-url.uc.js": {
+    "adaptive-tab-color.uc.js": {
       "type": "userchrome",
       "description": "JavaScript logic for color extraction and application"
     }
